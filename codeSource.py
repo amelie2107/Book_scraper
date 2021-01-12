@@ -5,7 +5,7 @@ Created on Fri Jan  8 10:05:59 2021
 @author: arnau
 """
 
-import requests
+import requests, urllib.request
 from bs4 import BeautifulSoup
 import re
 import os
@@ -71,8 +71,7 @@ def get_category_url(url_category):
         response = requests.get(url_category)
         if response.ok:
             soup = BeautifulSoup(response.text, features="html.parser")
-            h3 = soup.findAll("h3")
-            for elt in h3:
+            for elt in soup.findAll("h3"):
                 a = elt.find("a")
                 link = a['href']
                 links.append("http://books.toscrape.com/catalogue" + link.removeprefix('../../..'))
@@ -97,30 +96,40 @@ def get_all_category(inner_url):
     if response.ok:
         soup = BeautifulSoup(response.text, features="html.parser")
         ul = soup.findAll('ul')[2]
-        a = ul.findAll('a')
-        for elt in a:
+        for elt in ul.findAll('a'):
             link = inner_url + elt['href']
             category = (elt.text).strip()
             links.append((category,link))
         
     return links
-        
-            
+
+def fetch_image(image_url, category, book_name):
+    
+    book_name = book_name.decode().replace(" ","_").replace(",","")
+    
+    if requests.get(image_url).ok:
+        response = urllib.request.urlopen(image_url)
+        if not os.path.exists("scraping//"+category):
+            os.mkdir("scraping//"+category)
+        with open("scraping/"+category+"/"+book_name+".jpg",'wb') as pic:
+            pic.write(response.read())
         
 if __name__ == "__main__":
     #Retreive url categories
     inner_url = "http://books.toscrape.com/"
     all_cat = get_all_category(inner_url)
     
-    #create a directory to stock csv if it does not exist    
-    if not os.path.exists("scraping"):
-        os.mkdir("scraping")
-
     #for each category, retreive all books and write a csv file with book info        
     for cat in all_cat:
+        
+        #create a directory to stock csv if it does not exist    
+        if not os.path.exists("scraping//cat"):
+            os.mkdir("scraping//cat")
+
         list_url = get_category_url(cat[1])
         dict_list = []
         for elt in list_url:
             dict_list.append(url_get_info(elt))
+            fetch_image(dict_list[-1]["image_url"], dict_list[-1]["category"], dict_list[-1]["title"])
         write_csv(dict_list,"scraping//booksToScrap_"+cat[0]+".csv")
     
