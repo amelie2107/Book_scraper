@@ -32,7 +32,7 @@ def url_get_info(url):
         for elt in list(soup.findAll('tr')):
             line_info = re.findall(r"<th>(.*)</th>\n?<td>(.*)</td>",str(elt))
             if line_info[0][0] in header_match:
-                product_info[header_match[line_info[0][0]]] = line_info[0][1]
+                product_info[header_match[line_info[0][0]]] = (line_info[0][1]).replace("Â","")
         #retreive description
         product_info["product_description"] = soup.find_all('p')[3].text.encode() #encode manually characters because I think chain is too long
         #retreive category
@@ -51,7 +51,7 @@ def write_csv(dict_list_info, file_name):
     the file name in which we will save all the books information.
     """
     #exist_file = os.path.isfile(file_name)
-    with open(file_name, 'w') as file:
+    with open(file_name, 'w', newline='') as file:
         w = csv.DictWriter(file, fieldnames = dict_list_info[0].keys())
         #if not exist_file:
         w.writeheader()
@@ -61,14 +61,13 @@ def get_category_url(url_category):
     """ 
     This function allow to retreive all book's url from a category of book.
     The url in parameter is the url of the category.
+    This function return a list of books links of the category.
     """
     links = []
     next_page = True
     idx_page = 1
-    url_category = url_category.replace("index", "page-" + str(idx_page))
     
     while next_page:
-        url_category = url_category.replace("page-" + str(idx_page-1), "page-" + str(idx_page))
         response = requests.get(url_category)
         if response.ok:
             soup = BeautifulSoup(response.text, features="html.parser")
@@ -78,18 +77,50 @@ def get_category_url(url_category):
                 link = a['href']
                 links.append("http://books.toscrape.com/catalogue" + link.removeprefix('../../..'))
             idx_page += 1
+            url_category = url_category.replace("index", "page-" + str(idx_page)).replace("page-" + str(idx_page-1), "page-" + str(idx_page))
+ 
         else:
             next_page = False
         
     print("nous avons scrapé les {} page(s) de la categorie : {}".format(idx_page - 1,re.findall(r'<h1>(.*)</h1>',str(soup.findAll('h1')))[0]))
             
     return links
+
+def get_all_category(inner_url):
+    """
+    Retreive all category names and urls.
+    The general url website is enter in parameter.
+    This function return a list of tuple with category name and url.
+    """
+    links = []
+    response = requests.get(inner_url)
+    if response.ok:
+        soup = BeautifulSoup(response.text, features="html.parser")
+        ul = soup.findAll('ul')[2]
+        a = ul.findAll('a')
+        for elt in a:
+            link = inner_url + elt['href']
+            category = (elt.text).strip()
+            links.append((category,link))
+        
+    return links
+        
             
         
 if __name__ == "__main__":
-    list_url_childrens = get_category_url("http://books.toscrape.com/catalogue/category/books/childrens_11/index.html")
-    dict_list = []
-    for elt in list_url_childrens:
-        dict_list.append(url_get_info(elt))
-    write_csv(dict_list,"booksToScrap.csv")
+    #Retreive url categories
+    inner_url = "http://books.toscrape.com/"
+    all_cat = get_all_category(inner_url)
+    
+    #create a directory to stock csv if it does not exist    
+    if not os.path.exists("scraping"):
+        os.mkdir("scraping")
+
+    #for each category, retreive all books and write a csv file with book info        
+    for cat in all_cat:
+        list_url = get_category_url(cat[1])
+        dict_list = []
+        for elt in list_url:
+            dict_list.append(url_get_info(elt))
+        write_csv(dict_list,"scraping//booksToScrap_"+cat[0]+".csv")
     
