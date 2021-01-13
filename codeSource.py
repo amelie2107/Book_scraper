@@ -27,7 +27,7 @@ def url_get_info(url):
         soup = BeautifulSoup(response.text, features="html.parser")
 
         #retreive title
-        product_info["title"] = soup.find('h1').text.encode()
+        product_info["title"] = soup.find('h1').text.encode('ascii', 'ignore')
         #retreive UPC, prices and nb available
         for elt in list(soup.findAll('tr')):
             line_info = re.findall(r"<th>(.*)</th>\n?<td>(.*)</td>",str(elt))
@@ -51,10 +51,8 @@ def write_csv(dict_list_info, file_name):
     the file name needed to save the CSV file.
     
     """
-    #exist_file = os.path.isfile(file_name)
     with open(file_name, 'w', newline='') as file:
         w = csv.DictWriter(file, fieldnames = dict_list_info[0].keys())
-        #if not exist_file:
         w.writeheader()
         w.writerows(dict_list_info)
         
@@ -115,7 +113,7 @@ def fetch_image(image_url, category, book_name):
     
     """
     #file name treatment
-    book_name = book_name.decode().replace(" ","_").replace("Ã©",'e')
+    book_name = book_name.decode().replace(" ","_")
     category = category.replace(" ", "_")
 
     punc = '''!()-[]{};:'"\, <>./?@#$%^&*~'''
