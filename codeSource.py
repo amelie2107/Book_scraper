@@ -14,10 +14,10 @@ import csv
 def url_get_info(url):
     """
     This function allow to retreive information from an url. 
-    Information retreived : product_page_url, universal_ product_code (upc), title
-    price_including_tax, price_excluding_tax, number_available, product_description,
-    category, review_rating, image_url
-
+    This function return a dictionnary with the following book's information :
+    product_page_url, universal_ product_code (upc), title, price_including_tax, 
+    price_excluding_tax, number_available, product_description,category, review_rating, image_url
+    
     """
     product_info = {"product_page_url":url}
     header_match = {"UPC":"universal_ product_code (upc)", "Price (incl. tax)":"price_including_tax", "Price (excl. tax)":"price_excluding_tax", "Availability":"number_available"}
@@ -46,9 +46,10 @@ def url_get_info(url):
 
 def write_csv(dict_list_info, file_name):
     """
-    This fonction write the list of dictionnairy in a csv file with headers.
-    a list of dictionnary with all books information is in parameter, in addition
-    the file name in which we will save all the books information.
+    This fonction write the book information retreived earlier in a csv file with headers.
+    A list of dictionnary with all books information is enter in parameter, in addition
+    the file name needed to save the CSV file.
+    
     """
     #exist_file = os.path.isfile(file_name)
     with open(file_name, 'w', newline='') as file:
@@ -61,7 +62,8 @@ def get_category_url(url_category):
     """ 
     This function allow to retreive all book's url from a category of book.
     The url in parameter is the url of the category.
-    This function return a list of books links of the category.
+    This function return a list with all books url of the category.
+    
     """
     links = []
     next_page = True
@@ -87,9 +89,10 @@ def get_category_url(url_category):
 
 def get_all_category(inner_url):
     """
-    Retreive all category names and urls.
+    Retreive all category names with their own urls.
     The general url website is enter in parameter.
-    This function return a list of tuple with category name and url.
+    This function return a list of tuple with category name and the url of the category.
+    
     """
     links = []
     response = requests.get(inner_url)
@@ -104,28 +107,46 @@ def get_all_category(inner_url):
     return links
 
 def fetch_image(image_url, category, book_name):
+    """
+    Function that fetch the cover of a book and saved it 
+    in the category folder.
+    This function takes in parameter the image url to fetch the image,
+    the category and book name to save the folder at the right place.
     
-    book_name = book_name.decode().replace(" ","_").replace(",","")
+    """
+    #file name treatment
+    book_name = book_name.decode().replace(" ","_").replace("Ã©",'e')
+    category = category.replace(" ", "_")
+
+    punc = '''!()-[]{};:'"\, <>./?@#$%^&*~'''
+    for pct in punc:
+        book_name = book_name.replace(pct,"")
+        
+    if len(book_name) > 100:
+        book_name = book_name[:100]+"..."
     
-    if requests.get(image_url).ok:
-        response = urllib.request.urlopen(image_url)
-        if not os.path.exists("scraping//"+category):
-            os.mkdir("scraping//"+category)
-        with open("scraping/"+category+"/"+book_name+".jpg",'wb') as pic:
-            pic.write(response.read())
+    #we do not import the picture if it has been already saved
+    if not os.path.exists("scraping/"+category+"/"+book_name+".jpg"):
+        if requests.get(image_url).ok:
+            response = urllib.request.urlopen(image_url)
+            #We create the category path if it does not exist
+            if not os.path.exists("scraping//"+category):
+                os.mkdir("scraping//"+category)
+            #We saved the picture
+            with open("scraping/"+category+"/"+book_name+".jpg",'wb') as pic:
+                pic.write(response.read())
         
 if __name__ == "__main__":
     #Retreive url categories
     inner_url = "http://books.toscrape.com/"
     all_cat = get_all_category(inner_url)
-    
-    #for each category, retreive all books and write a csv file with book info        
-    for cat in all_cat:
-        
-        #create a directory to stock csv if it does not exist    
-        if not os.path.exists("scraping//cat"):
-            os.mkdir("scraping//cat")
+ 
+    #create a directory to stock csv if it does not exist    
+    if not os.path.exists("scraping"):
+        os.mkdir("scraping")
 
+    #for each category, retreive all cover's books and write a csv file with book info        
+    for cat in all_cat:
         list_url = get_category_url(cat[1])
         dict_list = []
         for elt in list_url:
