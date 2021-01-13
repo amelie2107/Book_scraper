@@ -83,7 +83,7 @@ def get_category_url(url_category):
         else:
             next_page = False
         
-    print("nous avons scrapé les {} page(s) de la categorie : {}".format(idx_page - 1,re.findall(r'<h1>(.*)</h1>',str(soup.findAll('h1')))[0]))
+    print("we scraped {} page(s) of the category : {}".format(idx_page - 1,re.findall(r'<h1>(.*)</h1>',str(soup.findAll('h1')))[0]))
             
     return links
 
@@ -139,6 +139,8 @@ def fetch_image(image_url, category, book_name):
 if __name__ == "__main__":
     #Retreive url categories
     inner_url = "http://books.toscrape.com/"
+    print("This program will extract data from the following website : {}".format(inner_url))
+    print("*********************STARTING EXTRACTION************************")
     all_cat = get_all_category(inner_url)
  
     #create a directory to stock csv if it does not exist    
@@ -153,4 +155,7 @@ if __name__ == "__main__":
             dict_list.append(url_get_info(elt))
             fetch_image(dict_list[-1]["image_url"], dict_list[-1]["category"], dict_list[-1]["title"])
         write_csv(dict_list,"scraping//booksToScrap_"+cat[0]+".csv")
+    
+    print("*******************END OF EXTRACTION******************")
+    print("All the files are saved on the following link : {}".format(os.getcwd()+'\\scraping\\'))
     
