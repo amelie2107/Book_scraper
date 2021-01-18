@@ -33,7 +33,7 @@ python codeSource.py
 The programm is running.
 Many lines must appear :
 "This program will extract data from the following website : http://books.toscrape.com/"
-"*********************STARTING EXTRACTION************************"
+"STARTING EXTRACTION"
 "we scraped X page(s) of the category : XXXXX"
 ...
 
