@@ -39,17 +39,22 @@ def get_book_info_from_url(url):
         nb_th = 0
         for elt in soup.find('table', {'class':"table table-striped"}).findAll('th'):
             if elt.text in header_match:
-               product_info[header_match[elt.text]] = check_tag(soup.find('table', {'class':"table table-striped"}).findAll('td'),nb_th,True)
+               product_info[header_match[elt.text]] = check_tag(soup.find('table', \
+               {'class':"table table-striped"}).findAll('td'),nb_th,True)
             nb_th +=1
         #retreive description
-        product_info["product_description"] = check_tag(soup.select('#product_description ~ p'),0,True)
+        product_info["product_description"] = check_tag(soup.select('#product_description ~ p'), \
+        0,True)
         #retreive category
-        product_info["category"] = check_tag(soup.find('ul', {'class':"breadcrumb"}).findAll('a'),3,True)
+        product_info["category"] = check_tag(soup.find('ul', \
+        {'class':"breadcrumb"}).findAll('a'),3,True)
         #retreive rating
         rating_treatment = check_tag(soup.findAll('p',{'class':'star-rating'}),0)
-        product_info["review_rating"] = re.findall(r"<p class=\"star-rating (.*)\">",str(rating_treatment))[0]
+        product_info["review_rating"] = re.findall(r"<p class=\"star-rating (.*)\">", \
+        str(rating_treatment))[0]
         #retreive image url
-        product_info["image_url"] = "http://books.toscrape.com/" + check_tag(soup.img.attrs["src"]).removeprefix('../../')
+        product_info["image_url"] = "http://books.toscrape.com/" \
+        + check_tag(soup.img.attrs["src"]).removeprefix('../../')
     return product_info
 
 def check_tag(tag_request, elt_nb='',methode_text=''):
@@ -109,14 +114,17 @@ def get_all_url_for_category(url_category):
             for elt in soup.findAll("h3"):
                 a_tag = check_tag(elt.find("a"))
                 link = check_tag(a_tag['href'])
-                links.append("http://books.toscrape.com/catalogue" + link.removeprefix('../../..'))
+                links.append("http://books.toscrape.com/catalogue" \
+                + link.removeprefix('../../..'))
             idx_page += 1
-            url_category = url_category.replace("index", "page-" + str(idx_page)).replace("page-" + str(idx_page-1), "page-" + str(idx_page))
+            url_category = url_category.replace("index", "page-" \
+            + str(idx_page)).replace("page-" + str(idx_page-1), "page-" + str(idx_page))
 
         else:
             next_page = False
 
-    print("we scraped {} page(s) of the category : {}".format(idx_page - 1,re.findall(r'<h1>(.*)</h1>',str(soup.findAll('h1')))[0]))
+    print("we scraped {} page(s) of the category : {}".format(idx_page - 1,\
+    re.findall(r'<h1>(.*)</h1>',str(soup.findAll('h1')))[0]))
 
     return links
 
@@ -176,8 +184,10 @@ if __name__ == "__main__":
         dict_list = []
         for elt in list_url:
             dict_list.append(get_book_info_from_url(elt))
-            fetch_image(dict_list[-1]["image_url"], slugify(dict_list[-1]["category"],separator="_"), slugify(dict_list[-1]["title"],separator="_",max_length=100))
-        write_csv(dict_list,"scraping//"+slugify(cat[0], separator="_")+"//_booksToScrap_"+cat[0]+".csv")
+            fetch_image(dict_list[-1]["image_url"], slugify(dict_list[-1]["category"], \
+            separator="_"), slugify(dict_list[-1]["title"],separator="_",max_length=100))
+        write_csv(dict_list,"scraping//"+slugify(cat[0], separator="_") \
+        +"//_booksToScrap_"+cat[0]+".csv")
 
     print("*******************END OF EXTRACTION******************")
     print("All the files are saved on the following link : {}".format(os.getcwd()+'\\scraping\\'))
