@@ -1,4 +1,4 @@
-# Market analyse
+# Market analyse with book scraper
 
 This code allow to extract images and information from a website. From there, but not developped yet, we can analyse the price evolution of a book for sample
 
