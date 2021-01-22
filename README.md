@@ -23,12 +23,12 @@ For that, you can run the "requirement.txt" file using the following lines in yo
 >Python -m venv env #to create the new virtual environnement<br />
 >env\\Scripts\\Activate.ps1 #to activate the environnement<br />
 >pip install -r requirements.txt #to download the package in the required version<br />
->spyder.exe #to launch you IDE, here spyder<br />
+
 
 ### Running the tests
 
 You can then lauch the python file using the following line :<br />
->python codeSource.py<br />
+>python book_scraper.py<br />
 
 The programm is running.<br />
 Many lines must appear :<br />
