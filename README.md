@@ -33,7 +33,7 @@ You can then lauch the python file using the following line :<br />
 The programm is running.<br />
 Many lines must appear :<br />
 >"This program will extract data from the following website : http://books.toscrape.com/"<br />
->"STARTING EXTRACTION"<br />
+>"STARTING EXTRACTION TRANSFORMATION LOADING"<br />
 >"we scraped X page(s) of the category : XXXXX"<br />
 >...<br />
 

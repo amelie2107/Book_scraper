@@ -171,7 +171,7 @@ if __name__ == "__main__":
     #Retreive url categories
     INNER_URL = "http://books.toscrape.com/"
     print("This program will extract data from the following website : {}".format(INNER_URL))
-    print("*********************STARTING EXTRACTION************************")
+    print("*********************STARTING EXTRACTION TRANSFORMATION LOADING************************")
     all_cat = get_all_category_from_url(INNER_URL)
 
     #create a directory to stock csv if it does not exist
@@ -189,6 +189,6 @@ if __name__ == "__main__":
         write_csv(dict_list,"scraping//"+slugify(cat[0], separator="_") \
         +"//_booksToScrap_"+cat[0]+".csv")
 
-    print("*******************END OF EXTRACTION******************")
+    print("*******************END OF EXTRACTION TRANSFORMATION LOADING******************")
     print("All the files are saved on the following link : {}".format(os.getcwd()+'\\scraping\\'))
     
