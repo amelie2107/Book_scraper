@@ -90,7 +90,7 @@ def write_csv(dict_list_info, file_name):
     the file name needed to save the CSV file.
 
     """
-    with open(file_name, 'w', newline='',encoding='utf-8-sig') as file:
+    with open(file_name, 'w', newline='', encoding='utf-8-sig') as file:
         write_file = csv.DictWriter(file, fieldnames = dict_list_info[0].keys(), dialect='excel')
         write_file.writeheader()
         write_file.writerows(dict_list_info)
@@ -180,14 +180,18 @@ if __name__ == "__main__":
 
     #for each category, retreive all cover's books and write a csv file with book info
     for cat in all_cat:
+        #Transform the category name in standard file name
+        category = slugify(cat[0], separator="_")
+        #create a directory by category to stock csv and picture if it does not exist
+        if not os.path.exists("scraping//"+category):
+            os.mkdir("scraping//"+category)
+
         list_url = get_all_url_for_category(cat[1])
         dict_list = []
         for elt in list_url:
             dict_list.append(get_book_info_from_url(elt))
-            fetch_image(dict_list[-1]["image_url"], slugify(dict_list[-1]["category"], \
-            separator="_"), slugify(dict_list[-1]["title"],separator="_",max_length=100))
-        write_csv(dict_list,"scraping//"+slugify(cat[0], separator="_") \
-        +"//_booksToScrap_"+cat[0]+".csv")
+            fetch_image(dict_list[-1]["image_url"], category, slugify(dict_list[-1]["title"],separator="_",max_length=100))
+        write_csv(dict_list,"scraping//" + category + "//_booksToScrap_"+cat[0]+".csv")
 
     print("*******************END OF EXTRACTION TRANSFORMATION LOADING******************")
     print("All the files are saved on the following link : {}".format(os.getcwd()+'\\scraping\\'))
